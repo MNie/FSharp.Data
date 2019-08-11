@@ -110,7 +110,32 @@ let ``Can infer DateTime and DateTimeOffset types correctly`` () =
   firstRow.DateOnly.GetType() |> should equal typeof<DateTime>
   firstRow.DateWithOffset.GetType() |> should equal typeof<DateTimeOffset>
   firstRow.MixedDate.GetType() |> should equal typeof<DateTime>
-  
+
+let [<Literal>] singleRowCsvData = """v
+4
+5"""
+
+[<Test>]
+let ``Single column csv should be parsed correctly``() =
+    let csv = CsvProvider<singleRowCsvData>.GetSample()
+
+    csv.Rows |> should equal [ 4; 5 ]
+
+
+let [<Literal>] singleRowCsvDataWithoutHeaders = """4
+5"""
+
+[<Test>]
+let ``Single column csv without headers should be parsed correctly``() =
+    let csv = CsvProvider<singleRowCsvDataWithoutHeaders, HasHeaders = false>.GetSample()
+
+    csv.Rows |> should equal [ 4; 5 ]
+
+[<Test>]
+let ``Single column csv without headers from file should be parsed correctly``() =
+    let csv = CsvProvider<singleRowCsvDataWithoutHeaders, Schema = "MyInt (int)", HasHeaders = false>.GetSample()
+
+    csv.Rows |> should equal [ 4; 5 ]
 
 [<Test>] 
 let ``Can create type for small document``() =
